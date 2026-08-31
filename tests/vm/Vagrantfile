@@ -1,0 +1,26 @@
+# frozen_string_literal: true
+
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder "../..", "/opt/sysdiag", type: "rsync", rsync__auto: false
+
+  boxes = {
+    "ubuntu2404" => ENV.fetch("SYSDIAG_BOX_UBUNTU", "generic/ubuntu2404"),
+    "debian12"   => ENV.fetch("SYSDIAG_BOX_DEBIAN", "generic/debian12"),
+    "rocky9"     => ENV.fetch("SYSDIAG_BOX_ROCKY", "generic/rocky9"),
+    "alma9"      => ENV.fetch("SYSDIAG_BOX_ALMA", "generic/alma9")
+  }
+
+  only = ENV["SYSDIAG_VM_ONLY"]
+  boxes.each do |name, box|
+    next if only && only != name
+    config.vm.define name do |vm|
+      vm.vm.box = box
+      vm.vm.hostname = "sysdiag-#{name}"
+      vm.vm.provider :libvirt do |libvirt|
+        libvirt.memory = 2048
+        libvirt.cpus = 2
+      end
+      vm.vm.provision "shell", path: "provision.sh"
+    end
+  end
+end

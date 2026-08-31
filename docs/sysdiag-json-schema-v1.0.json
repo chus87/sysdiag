@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:sysdiag:schema:1.0",
+  "title": "SYSdiag structured diagnostic report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sysdiag_version",
+    "generated_at",
+    "read_only",
+    "scope",
+    "host",
+    "summary",
+    "findings",
+    "limitations",
+    "next_steps",
+    "metrics"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "sysdiag_version": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "read_only": {
+      "const": true
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "host": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "category",
+          "title",
+          "status",
+          "score",
+          "signals",
+          "confidence",
+          "impact"
+        ],
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "INFO",
+              "LIMITED",
+              "WARNING",
+              "CRITICAL"
+            ]
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "signals": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "confidence": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "domain",
+          "points",
+          "impact",
+          "message"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "impact": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "next_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "description",
+          "commands"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "engine": {
+      "type": "string",
+      "description": "Motor que generó el informe; go-core cuando se usa el núcleo Go."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "layer",
+          "kind",
+          "current",
+          "message"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "layer": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "current": {
+            "type": "boolean"
+          },
+          "observed_at": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "conclusions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "confidence",
+          "root_cause_candidate",
+          "evidence_ids",
+          "interpretation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string"
+          },
+          "root_cause_candidate": {
+            "type": "boolean"
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "interpretation": {
+            "type": "string"
+          },
+          "manual_checks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

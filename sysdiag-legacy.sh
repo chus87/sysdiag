@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -uo pipefail
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$BASE_DIR/lib/version.sh"
+source "$BASE_DIR/lib/common.sh"
+source "$BASE_DIR/lib/output.sh"
+source "$BASE_DIR/lib/scoring.sh"
+source "$BASE_DIR/lib/sampler.sh"
+source "$BASE_DIR/modules/system.sh"
+source "$BASE_DIR/modules/cpu.sh"
+source "$BASE_DIR/modules/processes.sh"
+source "$BASE_DIR/modules/memory.sh"
+source "$BASE_DIR/modules/io.sh"
+source "$BASE_DIR/modules/filesystem.sh"
+source "$BASE_DIR/modules/network.sh"
+source "$BASE_DIR/modules/logging.sh"
+source "$BASE_DIR/modules/recent_events.sh"
+source "$BASE_DIR/modules/systemd_services.sh"
+source "$BASE_DIR/modules/boot.sh"
+source "$BASE_DIR/modules/containers.sh"
+source "$BASE_DIR/modules/kubernetes.sh"
+source "$BASE_DIR/modules/reference.sh"
+source "$BASE_DIR/lib/json.sh"
+source "$BASE_DIR/lib/cli.sh"
+
+main "$@"
