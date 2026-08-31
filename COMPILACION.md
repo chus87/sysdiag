@@ -4,7 +4,7 @@ Esta guía está pensada tanto para usuarios que quieran auditar/compilar SYSdia
 
 ## 1. Toolchain
 
-SYSdiag v0.14.1 exige **Go 1.27.0 exactamente**. `.go-version` y `go.mod` son la fuente de verdad. Las releases oficiales no se construyen con una versión distinta.
+SYSdiag v0.14.2 exige **Go 1.27.0 exactamente**. `.go-version` y `go.mod` son la fuente de verdad. Las releases oficiales no se construyen con una versión distinta.
 
 Comprueba:
 
@@ -158,8 +158,8 @@ Las releases oficiales se publican desde un **tag anotado y firmado**, por ejemp
 ```bash
 git checkout main
 git pull --ff-only
-git tag -s v0.14.1 -m "SYSdiag v0.14.1"
-git push origin v0.14.1
+git tag -s v0.14.2 -m "SYSdiag v0.14.2"
+git push origin v0.14.2
 ```
 
 El workflow de release exige:
@@ -179,8 +179,8 @@ Consulta `docs/RELEASING.md` para el procedimiento completo de publicación y ve
 Si has descargado el ZIP de código fuente:
 
 ```bash
-unzip sysdiag-v0.14.1.zip
-cd sysdiag-v0.14.1
+unzip sysdiag-v0.14.2.zip
+cd sysdiag-v0.14.2
 make build
 ```
 

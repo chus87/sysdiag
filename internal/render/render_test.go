@@ -10,7 +10,7 @@ import (
 
 func sampleReport() model.Report {
 	return model.Report{
-		SysdiagVersion: "0.14.1", Engine: "go-core", Host: "worker-01", Scope: []string{"all"}, DurationMS: 1250,
+		SysdiagVersion: "0.14.2", Engine: "go-core", Host: "worker-01", Scope: []string{"all"}, DurationMS: 1250,
 		Summary: []model.Summary{
 			{Category: "memory", Title: "Memoria", Status: "OK", Confidence: "ALTA", Impact: "BAJO"},
 			{Category: "kubernetes", Title: "Kubernetes / OpenShift", Status: "CRITICAL", Confidence: "ALTA", Impact: "CRÍTICO"},

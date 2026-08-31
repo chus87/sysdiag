@@ -31,17 +31,11 @@ Al recibir `v*`, GitHub Actions:
 3. Ejecuta lint, tests, race detector, schema, `govulncheck` y release-check.
 4. Construye los paquetes reproducibles.
 5. Genera Artifact Attestations de los artefactos publicados.
-6. Crea GitHub Release y adjunta binarios, paquetes, hashes, SBOM y BUILDINFO.
+6. Crea GitHub Release y adjunta únicamente amd64, arm64, standalone, ZIP y TAR.GZ. La metadata técnica completa permanece dentro de ZIP/TAR.GZ.
 
 ## Verificación por usuarios
 
-Checksums:
-
-```bash
-sha256sum -c sysdiag-vX.Y.Z-SHA256SUMS.txt
-```
-
-Procedencia GitHub:
+GitHub muestra el SHA-256 de cada asset publicado. Para verificar procedencia criptográfica:
 
 ```bash
 gh attestation verify sysdiag-vX.Y.Z-linux-amd64 --repo chus87/sysdiag
@@ -56,16 +50,7 @@ gh attestation verify sysdiag-vX.Y.Z-linux-amd64 --repo chus87/sysdiag
 
 ## Firma Sigstore adicional
 
-Además de GitHub Artifact Attestations, `release.yml` firma cada artefacto mediante Cosign keyless/OIDC y publica un fichero `*.sigstore.json` asociado.
-
-Ejemplo de verificación de un binario descargado:
-
-```bash
-cosign verify-blob sysdiag-vX.Y.Z-linux-amd64 \
-  --bundle sysdiag-vX.Y.Z-linux-amd64.sigstore.json \
-  --certificate-identity "https://github.com/chus87/sysdiag/.github/workflows/release.yml@refs/tags/vX.Y.Z" \
-  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
-```
+Además de GitHub Artifact Attestations, `release.yml` firma y verifica los tres artefactos ejecutables publicados mediante Cosign keyless/OIDC. Los bundles `*.sigstore.json` son temporales del workflow y no se publican como assets; la verificación pública recomendada es `gh attestation verify`.
 
 La firma de los tags continúa siendo responsabilidad exclusiva del mantenedor; las claves privadas no se almacenan en el repositorio ni en SYSdiag.
 

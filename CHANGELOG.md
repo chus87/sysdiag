@@ -1,4 +1,10 @@
 # Changelog
+## 0.14.2 — Release UX Polish
+- La ayuda del binario muestra dinámicamente el nombre real del ejecutable usado, en lugar de asumir `./sysdiag.sh`.
+- El menú admite `q`, `quit`, `salir` y `exit` además de `0` para salir.
+- Las GitHub Releases publican únicamente los dos binarios Go, el standalone Bash y los paquetes ZIP/TAR.GZ; metadata, SBOM, checksums y documentación permanecen dentro de los paquetes completos.
+- Artifact Attestations y la validación Sigstore se mantienen para los cinco artefactos públicos sin publicar sidecars `*.sigstore.json`.
+- Añadidas regresiones para el nombre dinámico de `--help`, aliases de salida y política de assets públicos.
 
 ## 0.14.1 — Public Release Hardening
 

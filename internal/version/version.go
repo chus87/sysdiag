@@ -7,7 +7,7 @@ import (
 	"github.com/chus87/sysdiag/internal/model"
 )
 
-const Version = "0.14.1"
+const Version = "0.14.2"
 const SchemaVersion = "1.1"
 const Engine = "go-core"
 const Author = "Chus (GitHub: chus87)"

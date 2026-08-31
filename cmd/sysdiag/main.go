@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -18,7 +19,7 @@ import (
 
 func main() {
 	raw := normalizeArgs(os.Args[1:])
-	fs := flag.NewFlagSet("sysdiag", flag.ContinueOnError)
+	fs := flag.NewFlagSet(programName(), flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
 	var jsonOut, summary, verbose, explain, all, ver, menu, noColor, noAuth bool
 	var section, containerMode, k8sMode, k8sNode, k8sNS, k8sPod, k8sCtx, kubeconfig, report, colorMode string
@@ -190,7 +191,7 @@ func showMenu(color bool) (choice, containerMode string, guide bool, err error) 
 	r := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Printf("\n%s%sSYSdiag — ¿Qué quieres analizar?%s\n\n", bold, cyan, reset)
-		fmt.Print("  1) Resumen general\n  2) CPU y procesos\n  3) Memoria\n  4) I/O y almacenamiento\n  5) Filesystems\n  6) Red\n  7) Logs / journald\n  8) Warnings y errores recientes\n  9) Systemd / servicios\n 10) Boot / arranque\n 11) Contenedores / runtime\n 12) Kubernetes / OpenShift\n 13) Guía de diagnóstico y comandos\n 14) Diagnóstico completo\n\n  0) Salir\n\nPuedes combinar secciones, por ejemplo: 4,6,8\nSelecciona una opción: ")
+		fmt.Print("  1) Resumen general\n  2) CPU y procesos\n  3) Memoria\n  4) I/O y almacenamiento\n  5) Filesystems\n  6) Red\n  7) Logs / journald\n  8) Warnings y errores recientes\n  9) Systemd / servicios\n 10) Boot / arranque\n 11) Contenedores / runtime\n 12) Kubernetes / OpenShift\n 13) Guía de diagnóstico y comandos\n 14) Diagnóstico completo\n\n  0/q) Salir\n\nPuedes combinar secciones, por ejemplo: 4,6,8\nTambién puedes salir con q, quit, salir o exit.\nSelecciona una opción: ")
 		line, e := r.ReadString('\n')
 		if e != nil && strings.TrimSpace(line) == "" {
 			return "", "", false, e
@@ -202,9 +203,10 @@ func showMenu(color bool) (choice, containerMode string, guide bool, err error) 
 		selected := map[string]bool{}
 		special := ""
 		valid := true
-		for _, x := range parts {
+		for _, rawPart := range parts {
+			x := strings.ToLower(rawPart)
 			switch x {
-			case "0":
+			case "0", "q", "quit", "salir", "exit":
 				special = "exit"
 			case "1":
 				special = "summary"
@@ -244,7 +246,7 @@ func showMenu(color bool) (choice, containerMode string, guide bool, err error) 
 			continue
 		}
 		if special != "" && len(parts) != 1 {
-			fmt.Println("Las opciones 0, 1, 13 y 14 deben elegirse solas.")
+			fmt.Println("Las opciones de salida, 1, 13 y 14 deben elegirse solas.")
 			continue
 		}
 		if special == "exit" || special == "summary" || special == "all" {
@@ -306,12 +308,19 @@ func isTTY(f *os.File) bool {
 	return err == nil && st.Mode()&os.ModeCharDevice != 0
 }
 func fatal2(s string) { fmt.Fprintln(os.Stderr, "ERROR:", s); os.Exit(2) }
+func programName() string {
+	name := filepath.Base(os.Args[0])
+	if name == "" || name == "." || name == string(filepath.Separator) {
+		return "sysdiag"
+	}
+	return name
+}
 func usage() {
 	fmt.Printf(`SYSdiag %s — diagnóstico read-only con núcleo Go
 Autor: Chus (GitHub: chus87)
 
 Uso:
-  ./sysdiag.sh [opciones]
+  %s [opciones]
 
 Opciones:
   --summary                     Resumen priorizado del diagnóstico completo.
@@ -341,5 +350,5 @@ Opciones:
 Seguridad:
   El núcleo Go sólo ejecuta el collector Bash embebido y auditado, mediante
   /bin/bash, entorno saneado, política read-only y grupo de procesos aislado.
-`, version.Version, version.SchemaVersion)
+`, version.Version, programName(), version.SchemaVersion)
 }

@@ -70,7 +70,7 @@ python3 - "$TMP/docker.json" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding='utf-8'))
 c=x['metrics']['containers']
-assert x['sysdiag_version']=='0.14.1'
+assert x['sysdiag_version']=='0.14.2'
 assert c['docker_available'] is True and c['docker_access']=='disponible'
 assert c['total']==3 and c['restarting']==1 and c['unhealthy']==1 and c['oomkilled']==1
 assert c['memory_near_limit']==1 and c['cpu_throttled']==1 and c['privileged']==1 and c['docker_socket_mounts']==1

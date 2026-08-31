@@ -21,7 +21,7 @@ mkdir -p "$TMP/bare"; cp "$TMP/sysdiag-amd64" "$TMP/bare/sysdiag"
 python3 - "$TMP/bare.json" <<'PY'
 import json,sys,re
 x=json.load(open(sys.argv[1])); assert x['engine']=='go-core' and x['scope']==['memory'] and x['read_only'] is True
-assert x['schema_version']=='1.1' and x['sysdiag_version']=='0.14.1'
+assert x['schema_version']=='1.1' and x['sysdiag_version']=='0.14.2'
 assert x['collectors'][0]['name']=='memory' and x['collectors'][0]['duration_ms']>=0
 assert re.fullmatch(r'[0-9a-f]{64}',x['build']['collector_sha256'])
 PY
@@ -50,7 +50,7 @@ collector_sha="$(sha256sum "$BASE_DIR/sysdiag-standalone.sh" | awk '{print $1}')
 python3 - "$TMP/go.json" "$TMP/legacy.json" <<'PY'
 import json,sys
 g,l=map(lambda p:json.load(open(p,encoding='utf-8')),sys.argv[1:])
-assert g['sysdiag_version']==l['sysdiag_version']=='0.14.1'; assert g['schema_version']==l['schema_version']=='1.1'; assert g['engine']=='go-core'; assert g['read_only'] is l['read_only'] is True
+assert g['sysdiag_version']==l['sysdiag_version']=='0.14.2'; assert g['schema_version']==l['schema_version']=='1.1'; assert g['engine']=='go-core'; assert g['read_only'] is l['read_only'] is True
 assert g['scope']==l['scope']==['boot']; assert set(g['metrics']['boot'])==set(l['metrics']['boot'])
 assert isinstance(g['coverage'],list) and isinstance(g['summary'],list)
 PY

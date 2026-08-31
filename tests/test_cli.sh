@@ -4,12 +4,12 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/testlib.sh"
 TMP="$TEST_TMP_ROOT/cli"; mkdir -p "$TMP/mockbin"
 
 "$BASE_DIR/sysdiag.sh" --section network --no-color > "$TMP/network.txt"
-for p in '^SYSdiag 0.14.1' '^RESUMEN PRIORIZADO$' '^DATOS RELEVANTES$' '^HALLAZGOS$' 'Ámbito: network'; do assert_grep "$p" "$TMP/network.txt"; done
+for p in '^SYSdiag 0.14.2' '^RESUMEN PRIORIZADO$' '^DATOS RELEVANTES$' '^HALLAZGOS$' 'Ámbito: network'; do assert_grep "$p" "$TMP/network.txt"; done
 if LC_ALL=C grep -q $'\033\[' "$TMP/network.txt"; then fail 'ANSI con --no-color'; fi
 
 REPORT="$TMP/report.txt"
 "$BASE_DIR/sysdiag.sh" --section network --report "$REPORT" >/dev/null
-assert_grep '^SYSdiag 0.14.1' "$REPORT"; assert_grep '^RESUMEN PRIORIZADO$' "$REPORT"
+assert_grep '^SYSdiag 0.14.2' "$REPORT"; assert_grep '^RESUMEN PRIORIZADO$' "$REPORT"
 if LC_ALL=C grep -q $'\033\[' "$REPORT"; then fail 'ANSI en report'; fi
 if stat -c '%a' "$REPORT" >/dev/null 2>&1; then [[ "$(stat -c '%a' "$REPORT")" == 600 ]] || fail 'permisos inseguros en report humano'; fi
 
@@ -31,7 +31,7 @@ if command -v mkfifo >/dev/null 2>&1; then
 fi
 printf 'contenido anterior\n' > "$TMP/report-existing"
 "$BASE_DIR/sysdiag.sh" --section network --report "$TMP/report-existing" >/dev/null
-assert_grep '^SYSdiag 0.14.1' "$TMP/report-existing"
+assert_grep '^SYSdiag 0.14.2' "$TMP/report-existing"
 
 "$BASE_DIR/sysdiag.sh" --summary --no-color > "$TMP/summary.txt"
 assert_grep '^RESUMEN PRIORIZADO$' "$TMP/summary.txt"; assert_no_grep '^DATOS RELEVANTES$' "$TMP/summary.txt"
@@ -61,10 +61,17 @@ unset SYSDIAG_TRUSTED_PATH
 assert_grep 'Ámbito: recent' "$TMP/recent-section.txt"; assert_grep 'Ámbito: recent' "$TMP/recent-alias.txt"
 
 "$BASE_DIR/sysdiag.sh" --version > "$TMP/version.txt"
-for p in '^SYSdiag 0.14.1$' '^Engine: go-core$' '^Schema: 1.1$'; do assert_grep "$p" "$TMP/version.txt"; done
+for p in '^SYSdiag 0.14.2$' '^Engine: go-core$' '^Schema: 1.1$'; do assert_grep "$p" "$TMP/version.txt"; done
 grep -Eq '^Collector SHA256: [0-9a-f]{64}$' "$TMP/version.txt" || fail "Collector SHA256 inválido en --version"
 "$BASE_DIR/sysdiag.sh" --help > "$TMP/help.txt"
 for p in '--container-mode' '--containers-deep' '--color auto' '--timeout'; do assert_grep "$p" "$TMP/help.txt"; done
+assert_grep 'Uso:' "$TMP/help.txt"
+grep -Eq '^  sysdiag-linux-(amd64|arm64) \[opciones\]$' "$TMP/help.txt" || fail 'La ayuda no muestra el nombre real del binario'
+for exit_word in q quit salir exit; do
+  printf '%s\n' "$exit_word" | "$BASE_DIR/sysdiag.sh" --menu --no-color > "$TMP/menu-exit-$exit_word.txt"
+  assert_grep 'SYSdiag — ¿Qué quieres analizar?' "$TMP/menu-exit-$exit_word.txt"
+  assert_no_grep '^RESUMEN PRIORIZADO$' "$TMP/menu-exit-$exit_word.txt"
+done
 "$BASE_DIR/sysdiag.sh" </dev/null > "$TMP/non-tty.txt"; assert_no_grep '¿Qué quieres analizar?' "$TMP/non-tty.txt"; assert_grep '^RESUMEN PRIORIZADO$' "$TMP/non-tty.txt"
 
 # Explicit color and NO_COLOR contract.

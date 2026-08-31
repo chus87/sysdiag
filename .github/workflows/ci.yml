@@ -39,7 +39,7 @@ jobs:
       - name: Validate structured output
         run: |
           ./sysdiag.sh --all --json > /tmp/sysdiag.json
-          jq -e '.schema_version == "1.1" and .sysdiag_version == "0.14.1" and .engine == "go-core" and .read_only == true' /tmp/sysdiag.json
+          jq -e '.schema_version == "1.1" and .sysdiag_version == "0.14.2" and .engine == "go-core" and .read_only == true' /tmp/sysdiag.json
       - uses: actions/upload-artifact@v7
         with:
           name: sysdiag-ci-linux

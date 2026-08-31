@@ -27,4 +27,4 @@ for test in \
   printf '\n== %s ==\n' "$test"
   "$BASE_DIR/tests/$test"
 done
-printf '\nOK: test suite SYSdiag 0.14.1\n'
+printf '\nOK: test suite SYSdiag 0.14.2\n'

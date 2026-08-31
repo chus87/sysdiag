@@ -7,7 +7,7 @@ before="$(sha256sum "$BASE_DIR/sysdiag-standalone.sh" | awk '{print $1}')"
 "$BASE_DIR/build-standalone.sh" > "$TMP/build.txt"
 after="$(sha256sum "$BASE_DIR/sysdiag-standalone.sh" | awk '{print $1}')"
 [[ "$before" == "$after" ]] || fail 'standalone no es reproducible'
-assert_grep 'Generado SYSdiag 0.14.1' "$TMP/build.txt"
+assert_grep 'Generado SYSdiag 0.14.2' "$TMP/build.txt"
 (cd "$BASE_DIR" && sha256sum -c SHA256SUMS >/dev/null) || fail 'SHA256SUMS inválido'
 
 "$BASE_DIR/sysdiag-standalone.sh" --section cpu --sample 1 --no-color > "$TMP/cpu.txt"

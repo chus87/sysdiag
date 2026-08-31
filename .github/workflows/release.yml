@@ -58,7 +58,10 @@ jobs:
       - name: Attest release provenance
         uses: actions/attest@v4
         with:
-          subject-path: 'dist/*'
+          subject-path: |
+            dist/sysdiag-${{ github.ref_name }}-linux-amd64
+            dist/sysdiag-${{ github.ref_name }}-linux-arm64
+            dist/sysdiag-${{ github.ref_name }}-standalone.sh
       - name: Install cosign
         uses: sigstore/cosign-installer@v4.1.0
       - name: Sign and verify release artifacts with Sigstore
@@ -66,19 +69,28 @@ jobs:
           set -euo pipefail
           identity="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/release.yml@refs/tags/${GITHUB_REF_NAME}"
           issuer="https://token.actions.githubusercontent.com"
-          artifacts=(dist/*)
+          artifacts=(
+            "dist/sysdiag-${GITHUB_REF_NAME}-linux-amd64"
+            "dist/sysdiag-${GITHUB_REF_NAME}-linux-arm64"
+            "dist/sysdiag-${GITHUB_REF_NAME}-standalone.sh"
+          )
           for f in "${artifacts[@]}"; do
             cosign sign-blob --yes --bundle "${f}.sigstore.json" "$f"
             cosign verify-blob "$f" \
               --bundle "${f}.sigstore.json" \
               --certificate-identity "$identity" \
               --certificate-oidc-issuer "$issuer"
+            rm -f "${f}.sigstore.json"
           done
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" dist/* \
+          prefix="dist/sysdiag-${GITHUB_REF_NAME}"
+          gh release create "$GITHUB_REF_NAME" \
+            "${prefix}-linux-amd64" \
+            "${prefix}-linux-arm64" \
+            "${prefix}-standalone.sh" \
             --verify-tag \
             --title "SYSdiag ${GITHUB_REF_NAME}" \
             --generate-notes

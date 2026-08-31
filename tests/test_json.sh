@@ -9,7 +9,7 @@ import json,sys
 p=sys.argv[1]
 d=json.load(open(p,encoding='utf-8'))
 assert d['schema_version']=='1.1'
-assert d['sysdiag_version']=='0.14.1'
+assert d['sysdiag_version']=='0.14.2'
 assert d['read_only'] is True
 assert d['scope']==['boot']
 assert [x['category'] for x in d['summary']]==['boot']

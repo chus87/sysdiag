@@ -5,7 +5,7 @@ BASE_DIR="$(pwd)"
 
 # ===== lib/version.sh =====
 
-SYS_DIAG_VERSION="0.14.1"
+SYS_DIAG_VERSION="0.14.2"
 
 # ===== lib/common.sh =====
 
