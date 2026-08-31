@@ -7,7 +7,7 @@ fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 go_version="$(cat .go-version)"
 [[ "$go_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail '.go-version no contiene una versión estable X.Y.Z'
 grep -qx "go $go_version" go.mod || fail "go.mod no declara go $go_version"
-grep -qx "toolchain go$go_version" go.mod || fail "go.mod no fija toolchain go$go_version"
+! grep -q '^toolchain ' go.mod || fail 'go.mod contiene una directiva toolchain redundante'
 [[ "$go_version" == "1.27.0" ]] || fail 'La release 0.14.1 debe partir de Go 1.27.0'
 grep -q '^VERSION := 0.14.1$' Makefile || fail 'Makefile no está en 0.14.1'
 grep -q '^SYS_DIAG_VERSION="0.14.1"$' lib/version.sh || fail 'backend Bash no está en 0.14.1'
@@ -39,7 +39,7 @@ grep -q 'package-ecosystem: github-actions' .github/dependabot.yml || fail 'Depe
 grep -q 'package-ecosystem: gomod' .github/dependabot.yml || fail 'Dependabot no cubre Go'
 [[ -x scripts/update-go-version.sh ]] || fail 'update-go-version.sh no es ejecutable'
 grep -q '\.go-version' scripts/update-go-version.sh || fail 'actualizador no toca .go-version'
-grep -q 'toolchain go' scripts/update-go-version.sh || fail 'actualizador no toca go.mod toolchain'
+! grep -q "f'toolchain go{v}'" scripts/update-go-version.sh || fail 'actualizador reintroduce una directiva toolchain redundante'
 
 printf 'OK: public release hardening SYSdiag 0.14.1\n'
 
