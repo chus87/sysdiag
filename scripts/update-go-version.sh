@@ -12,7 +12,7 @@ v=sys.argv[1]
 p=Path('go.mod')
 s=p.read_text()
 s=re.sub(r'^go\s+\S+', f'go {v}', s, count=1, flags=re.M)
-s=re.sub(r'^toolchain\s+go\S+', f'toolchain go{v}', s, count=1, flags=re.M)
+s=re.sub(r'^toolchain\s+go\S+\s*\n?', '', s, count=1, flags=re.M)
 p.write_text(s)
 PY
 printf 'Go fijado en %s. Ejecuta make release-check antes de integrar el cambio.\n' "$version"
