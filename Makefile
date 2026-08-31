@@ -48,7 +48,7 @@ syntax:
 lint: test-go
 	@./tests/ensure-shellcheck.sh || rc=$$?; \
 	if command -v shellcheck >/dev/null 2>&1; then \
-		shellcheck --severity=error -x sysdiag.sh sysdiag-legacy.sh build-standalone.sh build-sbom.sh build-info.sh release.sh scripts/*.sh lib/*.sh modules/*.sh tests/*.sh tests/integration/*.sh tests/vm/*.sh; \
+		shellcheck --shell=bash --severity=error -x sysdiag.sh sysdiag-legacy.sh build-standalone.sh build-sbom.sh build-info.sh release.sh scripts/*.sh lib/*.sh modules/*.sh tests/*.sh tests/integration/*.sh tests/vm/*.sh; \
 	else echo 'shellcheck no está instalado; lint Bash omitido'; exit $${rc:-2}; fi
 
 vuln-check: provenance-check
