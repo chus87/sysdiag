@@ -1,0 +1,22 @@
+name: Feature request
+about: Propón una mejora diagnóstica
+title: "[feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema de troubleshooting que quieres resolver
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidencias disponibles
+      description: Qué datos read-only permitirían distinguir hipótesis.
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propuesta
+    validations:
+      required: true

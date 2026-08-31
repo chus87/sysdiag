@@ -1,0 +1,61 @@
+name: Update Go stable version
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * 1'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-go:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Resolve latest stable Go
+        id: latest
+        shell: bash
+        run: |
+          set -euo pipefail
+          latest="$(curl -fsSL 'https://go.dev/VERSION?m=text' | sed -n '1s/^go//p')"
+          [[ "$latest" =~ ^1\.[0-9]+\.[0-9]+$ ]]
+          current="$(cat .go-version)"
+          echo "version=$latest" >> "$GITHUB_OUTPUT"
+          if [[ "$latest" == "$current" ]]; then echo 'changed=false' >> "$GITHUB_OUTPUT"; else echo 'changed=true' >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-go@v7
+        if: steps.latest.outputs.changed == 'true'
+        with:
+          go-version: ${{ steps.latest.outputs.version }}
+          cache: false
+      - name: Update toolchain files
+        if: steps.latest.outputs.changed == 'true'
+        run: |
+          ./scripts/update-go-version.sh '${{ steps.latest.outputs.version }}'
+          go mod tidy
+      - name: Validate updated toolchain
+        if: steps.latest.outputs.changed == 'true'
+        run: |
+          go test ./...
+          go vet ./...
+      - name: Create pull request
+        if: steps.latest.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GO_VERSION: ${{ steps.latest.outputs.version }}
+        run: |
+          set -euo pipefail
+          branch="automation/go-${GO_VERSION}"
+          if gh pr list --state open --head "$branch" --json number --jq 'length' | grep -qx '1'; then
+            echo "Ya existe un PR abierto para ${GO_VERSION}."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$branch"
+          git add .go-version go.mod
+          test ! -f go.sum || git add go.sum
+          git commit -m "build: update Go to ${GO_VERSION}"
+          git push -u origin "$branch"
+          gh pr create --base main --head "$branch" --title "build: update Go to ${GO_VERSION}" --body "Actualiza SYSdiag a la última versión estable publicada por Go. Requiere CI verde antes de merge."

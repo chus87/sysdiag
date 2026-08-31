@@ -1,0 +1,34 @@
+name: SYSdiag systemd VM integration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Requires a self-hosted Linux runner tagged "kvm" with Vagrant + libvirt.
+# It deliberately uses real systemd VMs; this is separate from the fast CI job.
+jobs:
+  systemd-vm:
+    runs-on: [self-hosted, linux, kvm]
+    strategy:
+      fail-fast: false
+      matrix:
+        vm: [ubuntu2404, debian12, rocky9, alma9]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate Vagrant/libvirt
+        run: |
+          vagrant --version
+          virsh --version
+      - name: Boot VM and run live integration
+        working-directory: tests/vm
+        env:
+          SYSDIAG_VM_ONLY: ${{ matrix.vm }}
+        run: |
+          vagrant up "${{ matrix.vm }}" --provider=libvirt
+          vagrant ssh "${{ matrix.vm }}" -c 'sudo /opt/sysdiag/tests/integration/systemd_live.sh /opt/sysdiag'
+      - name: Destroy VM
+        if: always()
+        working-directory: tests/vm
+        run: vagrant destroy -f "${{ matrix.vm }}" || true

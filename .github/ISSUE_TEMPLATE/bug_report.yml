@@ -1,0 +1,40 @@
+name: Bug report
+about: Reporta un fallo reproducible de SYSdiag
+title: "[bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "No adjuntes credenciales, tokens, kubeconfigs reales ni logs sin revisar."
+  - type: input
+    id: version
+    attributes:
+      label: Versión de SYSdiag
+      placeholder: "0.14.1"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Distribución y arquitectura
+      placeholder: "Ubuntu 24.04 amd64"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema
+      description: Qué esperabas y qué ocurrió.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Pasos para reproducir
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidencia sanitizada
+      description: Salida relevante, sin secretos ni datos sensibles.

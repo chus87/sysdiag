@@ -1,0 +1,84 @@
+name: Publish signed release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: '.go-version'
+          cache: false
+      - name: Validate tag, signature, version and current Go stable
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version="$(awk '/^VERSION :=/{print $3; exit}' Makefile)"
+          expected="v${version}"
+          [[ "$GITHUB_REF_NAME" == "$expected" ]] || { echo "Tag $GITHUB_REF_NAME != $expected" >&2; exit 1; }
+          current="$(cat .go-version)"
+          [[ "$(go env GOVERSION)" == "go${current}" ]] || { echo 'Toolchain Go inesperado' >&2; exit 1; }
+          latest="$(curl --fail --silent --show-error --location --retry 4 --max-time 30 'https://go.dev/VERSION?m=text' | head -n1 | sed 's/^go//')"
+          [[ "$current" == "$latest" ]] || { echo "La release exige el Go estable más reciente: repo=$current latest=$latest" >&2; exit 1; }
+          ref_json="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${GITHUB_REF_NAME}")"
+          tag_type="$(jq -r '.object.type' <<<"$ref_json")"
+          tag_sha="$(jq -r '.object.sha' <<<"$ref_json")"
+          [[ "$tag_type" == 'tag' ]] || { echo 'La release exige un tag anotado, no lightweight.' >&2; exit 1; }
+          verified="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${tag_sha}" --jq '.verification.verified')"
+          [[ "$verified" == 'true' ]] || { echo 'La release exige un tag firmado y verificado por GitHub.' >&2; exit 1; }
+      - name: Install release validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends shellcheck sysstat iproute2 lsof jq python3-jsonschema
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+      - name: Build and validate release
+        run: |
+          set -euo pipefail
+          export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$GITHUB_SHA")"
+          export COMMIT="$(git rev-parse --short=12 "$GITHUB_SHA")"
+          export TAG="$GITHUB_REF_NAME"
+          export BUILD_DATE="$(date -u -d "@${SOURCE_DATE_EPOCH}" +%Y-%m-%dT%H:%M:%SZ)"
+          make lint
+          make vuln-check
+          make release-check
+          SYSDIAG_RELEASE_SKIP_PRECHECK=1 ./release.sh "$GITHUB_WORKSPACE/dist"
+      - name: Attest release provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: 'dist/*'
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v4.1.0
+      - name: Sign and verify release artifacts with Sigstore
+        run: |
+          set -euo pipefail
+          identity="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/release.yml@refs/tags/${GITHUB_REF_NAME}"
+          issuer="https://token.actions.githubusercontent.com"
+          artifacts=(dist/*)
+          for f in "${artifacts[@]}"; do
+            cosign sign-blob --yes --bundle "${f}.sigstore.json" "$f"
+            cosign verify-blob "$f" \
+              --bundle "${f}.sigstore.json" \
+              --certificate-identity "$identity" \
+              --certificate-oidc-issuer "$issuer"
+          done
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --verify-tag \
+            --title "SYSdiag ${GITHUB_REF_NAME}" \
+            --generate-notes
