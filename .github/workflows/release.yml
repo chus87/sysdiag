@@ -63,7 +63,7 @@ jobs:
             dist/sysdiag-${{ github.ref_name }}-linux-arm64
             dist/sysdiag-${{ github.ref_name }}-standalone.sh
       - name: Install cosign
-        uses: sigstore/cosign-installer@v4.1.0
+        uses: sigstore/cosign-installer@v4.1.2
       - name: Sign and verify release artifacts with Sigstore
         run: |
           set -euo pipefail
