@@ -8,7 +8,7 @@ for f in "$BASE_DIR"/lib/*.sh "$BASE_DIR"/modules/*.sh "$BASE_DIR"/tests/*.sh; d
 
 # Single version source: launcher/builder should not hardcode the release.
 [[ "$(grep -RIl '^SYS_DIAG_VERSION=' "$BASE_DIR/lib" "$BASE_DIR/modules" "$BASE_DIR/sysdiag.sh" "$BASE_DIR/build-standalone.sh" | wc -l)" == 1 ]] || fail "la versión no tiene una única fuente"
-assert_grep 'SYS_DIAG_VERSION="0.14.1"' "$BASE_DIR/lib/version.sh"
+assert_grep 'SYS_DIAG_VERSION="0.14.2"' "$BASE_DIR/lib/version.sh"
 
 # The Go renderer must expose stable structured system data; alignment is no longer
 # tested by scraping the legacy table layout.
@@ -16,7 +16,7 @@ assert_grep 'SYS_DIAG_VERSION="0.14.1"' "$BASE_DIR/lib/version.sh"
 python3 - "$TMP/system.json" <<'PY_SYS'
 import json,sys
 x=json.load(open(sys.argv[1],encoding='utf-8'))
-assert x['sysdiag_version']=='0.14.1' and x['schema_version']=='1.1'
+assert x['sysdiag_version']=='0.14.2' and x['schema_version']=='1.1'
 assert 'system' in x['metrics'] and x['read_only'] is True
 PY_SYS
 

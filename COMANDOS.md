@@ -7,22 +7,22 @@ SYSdiag es read-only: recopila y correlaciona evidencias, pero no aplica correcc
 ### Binario Linux amd64 / x86-64
 
 ```bash
-chmod +x sysdiag-v0.14.1-linux-amd64
-./sysdiag-v0.14.1-linux-amd64
+chmod +x sysdiag-v0.14.2-linux-amd64
+./sysdiag-v0.14.2-linux-amd64
 ```
 
 Instalación opcional en el PATH:
 
 ```bash
-sudo install -m 0755 sysdiag-v0.14.1-linux-amd64 /usr/local/bin/sysdiag
+sudo install -m 0755 sysdiag-v0.14.2-linux-amd64 /usr/local/bin/sysdiag
 sysdiag
 ```
 
 ### Binario Linux arm64 / aarch64
 
 ```bash
-chmod +x sysdiag-v0.14.1-linux-arm64
-./sysdiag-v0.14.1-linux-arm64
+chmod +x sysdiag-v0.14.2-linux-arm64
+./sysdiag-v0.14.2-linux-arm64
 ```
 
 ### Desde el código fuente / paquete completo
@@ -185,15 +185,15 @@ sysdiag --guide
 sysdiag --section guide
 ```
 
-## Comprobar integridad de una release
+## Comprobar integridad y procedencia de una release
 
-Desde el directorio que contiene los artefactos:
+GitHub muestra el SHA-256 de cada asset publicado en la propia Release. Para verificar además que un binario procede del workflow oficial de SYSdiag:
 
 ```bash
-sha256sum -c sysdiag-v0.14.1-SHA256SUMS.txt
+gh attestation verify sysdiag-v0.14.2-linux-amd64 --repo chus87/sysdiag
 ```
 
-En una release publicada desde GitHub Actions también puede verificarse la procedencia mediante GitHub CLI cuando exista una Artifact Attestation asociada.
+Los enlaces `Source code (zip)` y `Source code (tar.gz)` de GitHub contienen el código exacto del tag, incluyendo `COMANDOS.md`, `COMPILACION.md`, licencia, NOTICE y el resto de documentación versionada. Los metadatos de build del binario se consultan con `--version`, y la procedencia criptográfica del artefacto se verifica mediante GitHub Artifact Attestations.
 
 ## Para mantenedores: paquete fuente
 

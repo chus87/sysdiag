@@ -1,4 +1,4 @@
-# SYSdiag 0.14.1 — Go Core
+# SYSdiag 0.14.2 — Go Core
 
 **Autor:** Chus (GitHub: `chus87`)  
 **Licencia:** Apache-2.0 — consulta `LICENSE` y `NOTICE`.
@@ -12,9 +12,11 @@ Documentos de uso y desarrollo:
 - `docs/SUPPORT.md`: plataformas soportadas.
 - `docs/GITHUB-SETUP.md` — ajustes recomendados del repositorio GitHub.
 
+Las releases públicas mantienen una superficie de descarga deliberadamente simple: SYSdiag publica sólo los dos binarios Go (`amd64`/`arm64`) y el standalone Bash. GitHub añade automáticamente los enlaces `Source code (zip)` y `Source code (tar.gz)`, de modo que la página de la release queda con cinco opciones útiles en total: tres ejecutables y dos paquetes de código fuente.
+
 SYSdiag es una herramienta **read-only** de diagnóstico Linux, contenedores, Kubernetes y OpenShift. Recopila datos, conserva la separación entre capas, relaciona evidencias y propone siguientes comprobaciones sin convertir un síntoma aislado en una causa.
 
-## Arquitectura 0.14.1
+## Arquitectura 0.14.2
 
 El ejecutable principal usa un **núcleo Go**. Los collectors Linux maduros permanecen como backend Bash aislado, de forma que la evolución del motor no invalida las comprobaciones ya probadas. La arquitectura mantiene explícitamente:
 

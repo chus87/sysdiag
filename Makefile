@@ -1,5 +1,5 @@
 SHELL := /usr/bin/env bash
-VERSION := 0.14.1
+VERSION := 0.14.2
 GO_VERSION := $(shell cat .go-version)
 COMMIT ?= $(shell git rev-parse --short=12 HEAD 2>/dev/null || echo unknown)
 TAG ?= $(shell git describe --tags --exact-match HEAD 2>/dev/null || echo untagged)

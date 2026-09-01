@@ -67,16 +67,16 @@ Su funcionamiento es:
 
 La versión de Go queda fijada por release. Esto combina toolchain reciente con builds reproducibles: una release nunca cambia de compilador a posteriori.
 
-## 7. Primera release
+## 7. Crear una release
 
 Antes de crearla:
 
 ```bash
 git status
 git pull --ff-only
-git tag -s v0.14.1 -m "SYSdiag v0.14.1"
-git tag -v v0.14.1
-git push origin v0.14.1
+git tag -s v0.14.2 -m "SYSdiag v0.14.2"
+git tag -v v0.14.2
+git push origin v0.14.2
 ```
 
 El push del tag dispara `.github/workflows/release.yml`.
@@ -87,33 +87,20 @@ Ese workflow:
 - verifica versión y tag firmado;
 - ejecuta lint, tests, race detector, `govulncheck` y validaciones de release;
 - genera amd64, arm64, standalone, ZIP, TAR.GZ, checksums, SBOM y BUILDINFO;
-- genera GitHub Artifact Attestations;
-- firma los artefactos mediante Sigstore/Cosign keyless;
-- verifica las firmas creadas;
-- publica GitHub Release.
+- conserva checksums, SBOM, BUILDINFO, licencia, NOTICE y documentación dentro de ZIP/TAR.GZ;
+- genera GitHub Artifact Attestations para los cinco artefactos públicos;
+- firma y verifica esos cinco artefactos mediante Sigstore/Cosign keyless sin publicar los bundles auxiliares;
+- publica únicamente amd64, arm64, standalone, ZIP y TAR.GZ como assets propios de la Release.
 
 ## 8. Verificar una release como usuario
 
-SHA-256:
+GitHub muestra el SHA-256 de cada asset publicado. La procedencia del binario puede verificarse mediante Artifact Attestation:
 
 ```bash
-sha256sum -c sysdiag-v0.14.1-SHA256SUMS.txt
+gh attestation verify sysdiag-v0.14.2-linux-amd64 --repo chus87/sysdiag
 ```
 
-Artifact Attestation con GitHub CLI:
-
-```bash
-gh attestation verify sysdiag-v0.14.1-linux-amd64 --repo chus87/sysdiag
-```
-
-Sigstore/Cosign:
-
-```bash
-cosign verify-blob sysdiag-v0.14.1-linux-amd64 \
-  --bundle sysdiag-v0.14.1-linux-amd64.sigstore.json \
-  --certificate-identity "https://github.com/chus87/sysdiag/.github/workflows/release.yml@refs/tags/v0.14.1" \
-  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
-```
+Los bundles temporales de Sigstore se usan y verifican dentro del workflow, pero no se publican como assets para mantener una Release limpia. ZIP/TAR.GZ conservan la metadata técnica completa para auditoría offline.
 
 ## 9. ARM64
 

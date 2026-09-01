@@ -70,7 +70,7 @@ python3 - "$TMP/out.json" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding='utf-8'))
 k=x['metrics']['kubernetes']
-assert x['sysdiag_version']=='0.14.1'
+assert x['sysdiag_version']=='0.14.2'
 assert k['access']=='disponible'
 assert k['nodes']==2 and k['memory_pressure_nodes']==1
 assert k['pods']==2 and k['pods_oomkilled']==1 and k['pods_pending']==1
